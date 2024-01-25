@@ -11184,6 +11184,21 @@ class GefRemoteSessionManager(GefSessionManager):
         return
 
 
+@register
+class YayCommand(GenericCommand):
+    _cmdline_ = "gef-yay"
+    _syntax_ = f"{_cmdline_} [OPTIONS] TTY"
+
+    def __init__(self) -> None:
+        super().__init__(prefix=False)
+        return
+
+    @parse_arguments({"x": "x", }, {})
+    def do_invoke(self, _: List[str], **kwargs: Any) -> None:
+        print("yay")
+        return
+
+
 class GefUiManager(GefManager):
     """Class managing UI settings."""
     def __init__(self) -> None:

@@ -11381,6 +11381,12 @@ def target_remote_posthook():
         raise EnvironmentError(f"Failed to create a proper environment for {gef.session.remote}")
 
 if __name__ == "__main__":
+
+    # load GEF
+    gef = Gef()
+    reset()
+    assert isinstance(gef, Gef)
+
     if sys.version_info[0] == 2:
         err("GEF has dropped Python2 support for GDB when it reached EOL on 2020/01/01.")
         err("If you require GEF for GDB+Python2, use https://github.com/hugsy/gef-legacy.")
@@ -11394,11 +11400,11 @@ if __name__ == "__main__":
 
     try:
         pyenv = which("pyenv")
-        pyenv_root = gef_pystring(subprocess.check_output([pyenv, "root"]).strip())
-        pyenv_version = gef_pystring(subprocess.check_output([pyenv, "version-name"]).strip())
-        site_packages_dir = pathlib.Path(pyenv_root) / f"versions/{pyenv_version}/lib/python{pathlib.Path(pyenv_version).stem}/site-packages"
-        assert site_packages_dir.is_dir()
-        site.addsitedir(str(site_packages_dir.absolute()))
+        pyenv_version_name = gef_pystring(subprocess.check_output([pyenv, "version-name"]).strip())
+        if pyenv_version_name != "system":
+            err("You have selected a different python version instead of \"system\" from pyenv, however gdb will still use the system version (/usr/bin/python). "
+                "To avoid conflicts please choose \"system\" as your python version before using gdb.")
+            exit(1)
     except FileNotFoundError:
         pass
 
@@ -11432,10 +11438,7 @@ if __name__ == "__main__":
         except gdb.error:
             pass
 
-    # load GEF, set up the managers and load the plugins, functions,
-    gef = Gef()
-    reset()
-    assert isinstance(gef, Gef)
+    # set up the managers and load the plugins, functions,
     gef.gdb.load()
     gef.gdb.show_banner()
 
